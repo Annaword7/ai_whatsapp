@@ -1,0 +1,70 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  --radius: 0.75rem;
+
+  --background: 210 20% 98%;
+  --foreground: 222 47% 11%;
+  --card: 0 0% 100%;
+  --card-foreground: 222 47% 11%;
+  --muted: 210 16% 93%;
+  --muted-foreground: 215 16% 47%;
+  --primary: 142 71% 39%; /* WhatsApp-ish green */
+  --primary-foreground: 0 0% 100%;
+  --accent: 199 89% 48%; /* AI blue */
+  --accent-foreground: 0 0% 100%;
+  --border: 214 20% 88%;
+  --input: 214 20% 88%;
+  --ring: 142 71% 39%;
+
+  --bubble-out: 142 60% 88%;
+  --bubble-in: 0 0% 100%;
+}
+
+.dark {
+  --background: 222 30% 8%;
+  --foreground: 210 20% 96%;
+  --card: 222 28% 11%;
+  --card-foreground: 210 20% 96%;
+  --muted: 217 25% 18%;
+  --muted-foreground: 215 18% 65%;
+  --primary: 142 65% 45%;
+  --primary-foreground: 0 0% 100%;
+  --accent: 199 85% 55%;
+  --accent-foreground: 0 0% 100%;
+  --border: 217 25% 20%;
+  --input: 217 25% 20%;
+  --ring: 142 65% 45%;
+
+  --bubble-out: 153 45% 22%;
+  --bubble-in: 222 24% 15%;
+}
+
+* {
+  border-color: hsl(var(--border));
+}
+
+html,
+body {
+  height: 100%;
+}
+
+body {
+  background-color: hsl(var(--background));
+  color: hsl(var(--foreground));
+  -webkit-font-smoothing: antialiased;
+  /* Respect mobile safe areas (notch / home indicator). */
+  overscroll-behavior-y: none;
+}
+
+/* Thin, unobtrusive scrollbars. */
+.scrollbar-thin::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+.scrollbar-thin::-webkit-scrollbar-thumb {
+  background-color: hsl(var(--border));
+  border-radius: 9999px;
+}

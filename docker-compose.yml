@@ -1,0 +1,59 @@
+# One-command local stack: PostgreSQL + backend + web.
+#   docker compose up db          # only the database (run server/web with npm)
+#   docker compose up --build     # full stack
+#
+# Set OPENAI_API_KEY in a root .env file (see .env.example).
+
+services:
+  db:
+    image: postgres:16-alpine
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: aiwa
+      POSTGRES_PASSWORD: aiwa
+      POSTGRES_DB: aiwa
+    ports:
+      - '5432:5432'
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+    healthcheck:
+      test: ['CMD-SHELL', 'pg_isready -U aiwa']
+      interval: 5s
+      timeout: 5s
+      retries: 10
+
+  server:
+    build: ./server
+    restart: unless-stopped
+    depends_on:
+      db:
+        condition: service_healthy
+    environment:
+      NODE_ENV: production
+      PORT: 8080
+      DATABASE_URL: postgresql://aiwa:aiwa@db:5432/aiwa?schema=public
+      OPENAI_API_KEY: ${OPENAI_API_KEY:-}
+      OPENAI_MODEL: ${OPENAI_MODEL:-gpt-4o-mini}
+      WA_SESSION_PATH: /app/.sessions
+      SESSION_ENCRYPTION_KEY: ${SESSION_ENCRYPTION_KEY:-dev-insecure-session-key-change-me}
+      CORS_ORIGIN: http://localhost:3000
+    ports:
+      - '8080:8080'
+    volumes:
+      - wasession:/app/.sessions
+
+  web:
+    build:
+      context: ./web
+      args:
+        NEXT_PUBLIC_API_URL: http://localhost:8080
+        NEXT_PUBLIC_WS_URL: ws://localhost:8080/ws
+    restart: unless-stopped
+    depends_on:
+      - server
+    ports:
+      - '3000:3000'
+
+volumes:
+  pgdata:
+  wasession:

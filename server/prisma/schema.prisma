@@ -1,0 +1,109 @@
+// Prisma schema for the AI WhatsApp web client.
+// Provider: PostgreSQL (Railway managed).
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+enum SessionStatus {
+  DISCONNECTED
+  CONNECTING
+  QR
+  CONNECTED
+}
+
+// A single WhatsApp account connection. For the MVP a single row with id "default"
+// is used, but the schema supports multiple sessions per deployment.
+model UserSession {
+  id          String        @id @default(cuid())
+  label       String?
+  phoneNumber String?
+  status      SessionStatus @default(DISCONNECTED)
+  // Filesystem path where the encrypted Baileys auth state is stored.
+  authPath    String?
+  createdAt   DateTime      @default(now())
+  updatedAt   DateTime      @updatedAt
+
+  chats    Chat[]
+  messages Message[]
+  contacts Contact[]
+}
+
+model Chat {
+  id            String    @id @default(cuid())
+  sessionId     String
+  session       UserSession @relation(fields: [sessionId], references: [id], onDelete: Cascade)
+  // WhatsApp JID, e.g. "1234567890@s.whatsapp.net" or "...@g.us".
+  jid           String
+  name          String?
+  isGroup       Boolean   @default(false)
+  unreadCount   Int       @default(0)
+  lastMessageAt DateTime?
+  archived      Boolean   @default(false)
+
+  // --- AI per-chat settings ---
+  autoTranslate Boolean   @default(false)
+  // Language inbound messages are translated into (the operator's language).
+  translateTo   String    @default("en")
+  // The contact's language, used when translating outbound messages.
+  contactLang   String?
+
+  contactId String?
+  contact   Contact? @relation(fields: [contactId], references: [id])
+
+  messages Message[]
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@unique([sessionId, jid])
+  @@index([sessionId, lastMessageAt])
+}
+
+model Message {
+  id        String   @id @default(cuid())
+  sessionId String
+  session   UserSession @relation(fields: [sessionId], references: [id], onDelete: Cascade)
+  chatId    String
+  chat      Chat     @relation(fields: [chatId], references: [id], onDelete: Cascade)
+
+  // WhatsApp message id (key.id).
+  waId           String
+  fromMe         Boolean  @default(false)
+  senderJid      String?
+  senderName     String?
+  body           String   @db.Text
+  // AI translation of `body` (target = chat.translateTo for inbound).
+  translatedBody String?  @db.Text
+  detectedLang   String?
+  type           String   @default("text")
+  // pending | sent | delivered | read | error
+  status         String   @default("sent")
+  timestamp      DateTime
+  createdAt      DateTime @default(now())
+
+  @@unique([sessionId, waId])
+  @@index([chatId, timestamp])
+}
+
+model Contact {
+  id        String   @id @default(cuid())
+  sessionId String
+  session   UserSession @relation(fields: [sessionId], references: [id], onDelete: Cascade)
+  jid       String
+  name      String?
+  pushName  String?
+  // Preferred language for this contact (used by outbound translation).
+  language  String?
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  chats Chat[]
+
+  @@unique([sessionId, jid])
+}
