@@ -97,7 +97,7 @@ export function Composer({ chat, contactLang }: { chat: Chat; contactLang: strin
 
       {error && <p className="px-3 pt-1 text-xs text-red-500">{error}</p>}
 
-      <div className="flex items-end gap-2 px-3 py-2.5">
+      <div className="flex items-end gap-2 px-3 pt-2.5 pb-[max(0.625rem,env(safe-area-inset-bottom))]">
         <textarea
           value={draft}
           onChange={(e) => setDraft(e.target.value)}

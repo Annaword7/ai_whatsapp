@@ -38,7 +38,7 @@ export default function HomePage() {
 
   return (
     <>
-      <header className="flex items-center justify-between border-b bg-card px-4 py-3">
+      <header className="flex items-center justify-between border-b bg-card px-4 pb-3 pt-[max(0.75rem,env(safe-area-inset-top))]">
         <div className="flex items-center gap-2">
           <Sparkles className="h-5 w-5 text-accent" />
           <h1 className="text-lg font-bold">AI WhatsApp</h1>

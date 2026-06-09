@@ -28,7 +28,7 @@ export function ChatHeader({ chat }: { chat: Chat }) {
   };
 
   return (
-    <header className="flex items-center gap-3 border-b bg-card px-3 py-2.5">
+    <header className="flex items-center gap-3 border-b bg-card px-3 pb-2.5 pt-[max(0.625rem,env(safe-area-inset-top))]">
       <Link href="/" className="rounded-full p-1 hover:bg-muted">
         <ArrowLeft className="h-5 w-5" />
       </Link>

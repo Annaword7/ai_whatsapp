@@ -6,7 +6,7 @@ export const metadata: Metadata = {
   title: 'AI WhatsApp Client',
   description: 'WhatsApp web client with AI translation and smart replies.',
   manifest: '/manifest.webmanifest',
-  appleWebApp: { capable: true, statusBarStyle: 'black-translucent', title: 'AI WA' },
+  appleWebApp: { capable: true, statusBarStyle: 'default', title: 'AI WA' },
   icons: { icon: '/icon.svg', apple: '/icon.svg' },
 };
 
