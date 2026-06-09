@@ -166,7 +166,10 @@ class WhatsAppManager {
   /** Start (or restart) a WhatsApp connection for the given session. */
   async start(sessionId: string): Promise<SessionInfo> {
     const s = this.getOrCreate(sessionId);
-    if (s.starting || s.status === 'CONNECTED') return this.getInfo(sessionId);
+    // Never open a second socket for the same session while one is starting or
+    // alive. Duplicate sockets make WhatsApp drop the connection in a reconnect
+    // loop (and the device appears "not linked").
+    if (s.starting || s.sock) return this.getInfo(sessionId);
     s.starting = true;
     s.manualStop = false;
 
@@ -306,6 +309,10 @@ class WhatsAppManager {
       const replaced = statusCode === DisconnectReason.connectionReplaced;
 
       logger.warn({ sessionId: s.id, statusCode, loggedOut, replaced }, 'connection closed');
+
+      // The socket is dead; drop the reference so a reconnect can create a fresh
+      // one (and so the duplicate-socket guard in start() doesn't block it).
+      s.sock = undefined;
 
       if (loggedOut) {
         await this.handleLoggedOut(s);
