@@ -1,32 +1,24 @@
-// Minimal PWA service worker: network-first for navigations, cache the app
-// shell for offline fallback. Kept intentionally simple for the MVP.
-const CACHE = 'ai-wa-v1';
-const SHELL = ['/'];
+// Minimal, update-safe service worker.
+//
+// It exists only so the app stays installable as a PWA. It deliberately does
+// NOT cache application code: a new deploy is always fetched fresh, so a stale
+// bundle can never be served (which previously caused "old UI after redeploy").
+// On activation it also wipes any caches left behind by older SW versions.
 
-self.addEventListener('install', (event) => {
-  event.waitUntil(caches.open(CACHE).then((c) => c.addAll(SHELL)));
+const CACHE_PREFIX = 'ai-wa-';
+
+self.addEventListener('install', () => {
   self.skipWaiting();
 });
 
 self.addEventListener('activate', (event) => {
   event.waitUntil(
-    caches.keys().then((keys) => Promise.all(keys.filter((k) => k !== CACHE).map((k) => caches.delete(k)))),
-  );
-  self.clients.claim();
-});
-
-self.addEventListener('fetch', (event) => {
-  const { request } = event;
-  // Only handle GET navigations/assets; never cache API or WebSocket traffic.
-  if (request.method !== 'GET' || request.url.includes('/api/')) return;
-
-  event.respondWith(
-    fetch(request)
-      .then((res) => {
-        const copy = res.clone();
-        caches.open(CACHE).then((c) => c.put(request, copy)).catch(() => {});
-        return res;
-      })
-      .catch(() => caches.match(request).then((cached) => cached || caches.match('/'))),
+    caches
+      .keys()
+      .then((keys) => Promise.all(keys.filter((k) => k.startsWith(CACHE_PREFIX)).map((k) => caches.delete(k))))
+      .then(() => self.clients.claim()),
   );
 });
+
+// Pass-through: let the browser handle every request from the network as usual.
+self.addEventListener('fetch', () => {});
