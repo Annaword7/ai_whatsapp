@@ -12,7 +12,7 @@ const schema = z.object({
   // AI is optional at boot so the server can run for QR pairing without a key,
   // but AI endpoints will return a clear error until it is set.
   OPENAI_API_KEY: z.string().default(''),
-  OPENAI_MODEL: z.string().default('gpt-4o-mini'),
+  OPENAI_MODEL: z.string().default('gpt-4o'),
 
   WA_SESSION_PATH: z.string().default('./.sessions'),
   SESSION_ENCRYPTION_KEY: z

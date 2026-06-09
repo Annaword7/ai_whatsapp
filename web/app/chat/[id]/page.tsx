@@ -3,7 +3,7 @@
 import { useEffect, useState } from 'react';
 import { useParams } from 'next/navigation';
 import Link from 'next/link';
-import type { Chat } from '@/lib/types';
+import type { Chat, Message } from '@/lib/types';
 import { api } from '@/lib/api';
 import { useChatStore } from '@/stores/chatStore';
 import { ChatHeader } from '@/components/ChatHeader';
@@ -12,11 +12,15 @@ import { Composer } from '@/components/Composer';
 import { Spinner } from '@/components/ui/spinner';
 import { Button } from '@/components/ui/button';
 
+// Stable empty-array reference so the selector never returns a fresh array
+// (which would make useSyncExternalStore loop forever).
+const EMPTY_MESSAGES: Message[] = [];
+
 export default function ChatPage() {
   const params = useParams<{ id: string }>();
   const chatId = params.id;
 
-  const messages = useChatStore((s) => s.messages[chatId] ?? []);
+  const messages = useChatStore((s) => s.messages[chatId]) ?? EMPTY_MESSAGES;
   const setMessages = useChatStore((s) => s.setMessages);
   const setActiveChat = useChatStore((s) => s.setActiveChat);
   const storeChat = useChatStore((s) => s.chats.find((c) => c.id === chatId));

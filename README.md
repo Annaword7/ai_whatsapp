@@ -123,7 +123,7 @@ stream in realtime.
 | --- | --- | --- | --- |
 | `DATABASE_URL` | ✅ | — | PostgreSQL connection string |
 | `OPENAI_API_KEY` | for AI | `''` | Server boots without it; AI endpoints 503 until set |
-| `OPENAI_MODEL` | | `gpt-4o-mini` | Any chat-completions model |
+| `OPENAI_MODEL` | | `gpt-4o` | Any chat-completions model |
 | `WA_SESSION_PATH` | | `./.sessions` | Auth state dir — **mount a volume in prod** |
 | `SESSION_ENCRYPTION_KEY` | ✅ (prod) | dev fallback | Encrypts auth state at rest |
 | `CORS_ORIGIN` | | `*` | Web origin(s), comma-separated |
@@ -145,7 +145,7 @@ Project → **New** → **Database** → **PostgreSQL**. Railway exposes `DATABA
 2. **Variables:**
    - `DATABASE_URL` → reference the Postgres plugin: `${{Postgres.DATABASE_URL}}`
    - `OPENAI_API_KEY` → your key
-   - `OPENAI_MODEL` → `gpt-4o-mini` (optional)
+   - `OPENAI_MODEL` → `gpt-4o` (optional)
    - `SESSION_ENCRYPTION_KEY` → a long random secret
    - `WA_SESSION_PATH` → `/app/.sessions`
    - `CORS_ORIGIN` → your web service URL (e.g. `https://your-web.up.railway.app`)
